@@ -20,12 +20,12 @@ SQL_DIR = PROJECT_DIR / "sql"
 # Keep the dependency order explicit. Staging is a full refresh from raw;
 # dimensions must exist before the fact table is loaded.
 PIPELINE_STEPS = [
-    "11_create_dwh_tables.sql",
-    "10_create_staging_yellow_tripdata.sql",
-    "13_enrich_dwh_dimensions.sql",
-    "12_load_dwh_dimensions.sql",
-    "14_sync_dwh_reference_dimensions.sql",
-    "15_load_fact_trips.sql",
+    "06_create_dwh_tables.sql",
+    "07_create_staging_yellow_tripdata.sql",
+    "08_enrich_dwh_dimensions.sql",
+    "09_load_dwh_dimensions.sql",
+    "10_sync_dwh_reference_dimensions.sql",
+    "11_load_fact_trips.sql",
 ]
 
 ZERO_REQUIRED = [
@@ -97,7 +97,7 @@ def validate_integrity(conn: psycopg.Connection) -> None:
     """Run the integrity report and raise if any required check fails."""
     with conn.cursor() as cur:
         cur.execute(
-            (SQL_DIR / "20_validate_pipeline_integrity.sql").read_text(
+            (SQL_DIR / "12_validate_pipeline_integrity.sql").read_text(
                 encoding="utf-8"
             ),
             prepare=False,

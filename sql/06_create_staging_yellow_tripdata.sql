@@ -39,9 +39,7 @@ CREATE TABLE IF NOT EXISTS staging.yellow_tripdata (
     source_file TEXT
 );
 
--- Full refresh: raw remains untouched
-TRUNCATE TABLE staging.yellow_tripdata;
-
+-- Incremental load: keep previously processed records and add only new raw IDs.
 INSERT INTO staging.yellow_tripdata (
     raw_trip_record_id,
     vendor_id,
@@ -135,6 +133,11 @@ SELECT
     r.loaded_at,
     r.source_file
 
-FROM raw.yellow_tripdata AS r;
+FROM raw.yellow_tripdata AS r
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM staging.yellow_tripdata AS existing
+    WHERE existing.raw_trip_record_id = r.trip_record_id
+);
 
 COMMIT;

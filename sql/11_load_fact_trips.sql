@@ -72,11 +72,6 @@ SELECT
     s.loaded_at,
     s.source_file
 FROM staging.yellow_tripdata AS s
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM dwh.fact_trips AS existing
-    WHERE existing.raw_trip_record_id = s.raw_trip_record_id
-)
 LEFT JOIN dwh.dim_vendor AS v
     ON v.vendor_id = s.vendor_id
 LEFT JOIN dwh.dim_payment_type AS p
@@ -87,6 +82,11 @@ LEFT JOIN dwh.dim_location AS pu
     ON pu.location_id = s.pickup_location_id
 LEFT JOIN dwh.dim_location AS doff
     ON doff.location_id = s.dropoff_location_id
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dwh.fact_trips AS existing
+    WHERE existing.raw_trip_record_id = s.raw_trip_record_id
+)
 ON CONFLICT (raw_trip_record_id) DO NOTHING;
 
 COMMIT;

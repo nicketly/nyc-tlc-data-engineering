@@ -72,6 +72,11 @@ SELECT
     s.loaded_at,
     s.source_file
 FROM staging.yellow_tripdata AS s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dwh.fact_trips AS existing
+    WHERE existing.raw_trip_record_id = s.raw_trip_record_id
+)
 LEFT JOIN dwh.dim_vendor AS v
     ON v.vendor_id = s.vendor_id
 LEFT JOIN dwh.dim_payment_type AS p
@@ -82,35 +87,6 @@ LEFT JOIN dwh.dim_location AS pu
     ON pu.location_id = s.pickup_location_id
 LEFT JOIN dwh.dim_location AS doff
     ON doff.location_id = s.dropoff_location_id
-ON CONFLICT (raw_trip_record_id) DO UPDATE SET
-    pickup_date_key = EXCLUDED.pickup_date_key,
-    dropoff_date_key = EXCLUDED.dropoff_date_key,
-    vendor_key = EXCLUDED.vendor_key,
-    payment_type_key = EXCLUDED.payment_type_key,
-    ratecode_key = EXCLUDED.ratecode_key,
-    pickup_location_key = EXCLUDED.pickup_location_key,
-    dropoff_location_key = EXCLUDED.dropoff_location_key,
-    pickup_datetime = EXCLUDED.pickup_datetime,
-    dropoff_datetime = EXCLUDED.dropoff_datetime,
-    passenger_count = EXCLUDED.passenger_count,
-    trip_distance = EXCLUDED.trip_distance,
-    trip_duration_minutes = EXCLUDED.trip_duration_minutes,
-    fare_amount = EXCLUDED.fare_amount,
-    extra = EXCLUDED.extra,
-    mta_tax = EXCLUDED.mta_tax,
-    tip_amount = EXCLUDED.tip_amount,
-    tolls_amount = EXCLUDED.tolls_amount,
-    improvement_surcharge = EXCLUDED.improvement_surcharge,
-    total_amount = EXCLUDED.total_amount,
-    congestion_surcharge = EXCLUDED.congestion_surcharge,
-    airport_fee = EXCLUDED.airport_fee,
-    cbd_congestion_fee = EXCLUDED.cbd_congestion_fee,
-    is_negative_duration = EXCLUDED.is_negative_duration,
-    is_zero_distance = EXCLUDED.is_zero_distance,
-    is_negative_fare = EXCLUDED.is_negative_fare,
-    is_negative_total = EXCLUDED.is_negative_total,
-    has_missing_critical_fields = EXCLUDED.has_missing_critical_fields,
-    loaded_at = EXCLUDED.loaded_at,
-    source_file = EXCLUDED.source_file;
+ON CONFLICT (raw_trip_record_id) DO NOTHING;
 
 COMMIT;

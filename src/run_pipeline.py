@@ -20,8 +20,8 @@ SQL_DIR = PROJECT_DIR / "sql"
 # Keep the dependency order explicit. Staging is a full refresh from raw;
 # dimensions must exist before the fact table is loaded.
 PIPELINE_STEPS = [
-    "06_create_dwh_tables.sql",
-    "07_create_staging_yellow_tripdata.sql",
+    "07_create_dwh_tables.sql",
+    "06_create_staging_yellow_tripdata.sql",
     "08_enrich_dwh_dimensions.sql",
     "09_load_dwh_dimensions.sql",
     "10_sync_dwh_reference_dimensions.sql",

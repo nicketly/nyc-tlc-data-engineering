@@ -26,7 +26,15 @@ import run_pipeline as warehouse_pipeline  # noqa: E402
 
 
 def validate_environment() -> None:
-    load_dotenv(PROJECT_DIR / ".env")
+    env_path = PROJECT_DIR / ".env"
+    example_path = PROJECT_DIR / ".env.example"
+    if not env_path.exists():
+        if not example_path.is_file():
+            raise FileNotFoundError(f"Environment template not found: {example_path}")
+        env_path.write_text(example_path.read_text(encoding="utf-8"), encoding="utf-8")
+        logging.warning("Created .env from .env.example with local development defaults")
+
+    load_dotenv(env_path)
     required = [
         "DATABASE_NAME", "DATABASE_USER", "DATABASE_PASSWORD", "HOST", "PORT"
     ]
